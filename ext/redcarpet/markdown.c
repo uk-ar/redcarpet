@@ -146,12 +146,17 @@ struct sd_markdown {
 	unsigned int ext_flags;
 	size_t max_nesting;
 	int in_link_body;
+  char *start;
+  size_t size;
 };
 
 /***************************
  * HELPER FUNCTIONS *
  ***************************/
-
+void rhello(struct sd_markdown *rndr){
+  fprintf(stderr,"s:%.*s\n",rndr->size, rndr->start);
+  printf("hello");
+}
 static inline struct buf *
 rndr_newbuf(struct sd_markdown *rndr, int type)
 {
@@ -767,7 +772,11 @@ char_codespan(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t of
 
 	if (i < nb && end >= size)
 		return 0; /* no matching delimiter */
-
+  /* fprintf(stderr,"s:%.*s\n",end,data); */
+  /* fprintf(stderr,"end:%d\n",end); */
+  /* rndr->size = end; */
+  /* rndr->start = data; */
+  /* rhello(rndr); */
 	/* trimming outside whitespaces */
 	f_begin = nb;
 	while (f_begin < end && data[f_begin] == ' ')
@@ -793,7 +802,7 @@ char_codespan(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t of
 /* char_quote • '"' parsing a quote */
 static size_t
 char_quote(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size)
-{    
+{
 	size_t end, nq = 0, i, f_begin, f_end;
 
 	/* counting the number of quotes in the delimiter */
@@ -1711,8 +1720,11 @@ parse_paragraph(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 		header_work = rndr_newbuf(rndr, BUFFER_SPAN);
 		parse_inline(header_work, rndr, work.data, work.size);
 
-		if (rndr->cb.header)
-			rndr->cb.header(ob, header_work, (int)level, rndr->opaque);
+		if (rndr->cb.header){
+      rndr->cb.header(ob, header_work, (int)level, rndr->opaque);
+    } else {
+      bufput(ob, data, end);
+    }
 
 		rndr_popbuf(rndr, BUFFER_SPAN);
 	}
@@ -1993,8 +2005,13 @@ parse_atxheader(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 
 		parse_inline(work, rndr, data + i, end - i);
 
-		if (rndr->cb.header)
-			rndr->cb.header(ob, work, (int)level, rndr->opaque);
+		if (rndr->cb.header){
+      //fprintf(stderr,"call size:%d", skip);//work.orig_size);
+      rndr->cb.header(ob, work, (int)level, rndr->opaque);
+    } else {
+      //fprintf(stderr,"size:%d", skip);//work.orig_size);
+      bufput(ob, data, skip);
+    }
 
 		rndr_popbuf(rndr, BUFFER_SPAN);
 	}

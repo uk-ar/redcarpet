@@ -1,6 +1,19 @@
 # coding: UTF-8
 require 'test_helper'
 
+class Converter < Redcarpet::Render::Base
+  def paragraph(text)
+    text
+  end
+  def codespan(text)
+    nil
+  end
+
+  # def header(text,level)
+  #   nil
+  # end
+end
+
 class MarkdownTest < Test::Unit::TestCase
 
   def setup
@@ -9,6 +22,21 @@ class MarkdownTest < Test::Unit::TestCase
 
   def render_with(flags, text)
     Redcarpet::Markdown.new(Redcarpet::Render::HTML, flags).render(text)
+  end
+
+  def test_hello
+    assert_respond_to @markdown, :hello
+    assert_equal "Hello World.", @markdown.hello()
+  end
+
+  def test_hello2
+    markdown=Redcarpet::Markdown.new(Converter)
+    assert_equal "Hello World.", markdown.render("Hello World.")
+    assert_equal "`Hello World.`", markdown.render("`Hello World.`")
+    assert_equal "```\nHello World.\n```", markdown.render("```\nHello World.\n```")
+    assert_equal "# Hello World.", markdown.render("# Hello World.")
+    #assert_equal "Hello\n=====", markdown.render("Hello\n=====")
+    assert_equal "Hello\n=====\n", markdown.render("Hello\n=====\n")
   end
 
   def test_that_simple_one_liner_goes_to_html
