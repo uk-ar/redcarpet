@@ -30,7 +30,7 @@ class MarkdownTest < Test::Unit::TestCase
   end
 
   def test_hello2
-    markdown=Redcarpet::Markdown.new(Converter)
+    markdown=Redcarpet::Markdown.new(Converter, :copy_block => true)
     assert_equal "Hello World.", markdown.render("Hello World.")
     assert_equal "`Hello World.`", markdown.render("`Hello World.`")
     assert_equal "```\nHello World.\n```", markdown.render("```\nHello World.\n```")

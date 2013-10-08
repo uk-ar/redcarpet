@@ -68,6 +68,9 @@ static void rb_redcarpet_md_flags(VALUE hash, unsigned int *enabled_extensions_p
 	if (rb_hash_lookup(hash, CSTR2SYM("footnotes")) == Qtrue)
 		extensions |= MKDEXT_FOOTNOTES;
 
+  if (rb_hash_lookup(hash, CSTR2SYM("copy_block")) == Qtrue)
+		extensions |= MKDEXT_COPY_BLOCK;
+
 	*enabled_extensions_p = extensions;
 }
 

@@ -2005,10 +2005,12 @@ parse_atxheader(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 
 		parse_inline(work, rndr, data + i, end - i);
 
+    struct html_renderopt *options = rndr->opaque;
 		if (rndr->cb.header){
       //fprintf(stderr,"call size:%d", skip);//work.orig_size);
       rndr->cb.header(ob, work, (int)level, rndr->opaque);
-    } else {
+    } else if (rndr->ext_flags & MKDEXT_COPY_BLOCK) {
+      //if (rndr->ext_flags & MKDEXT_FOOTNOTES && data[1] == '^');
       //fprintf(stderr,"size:%d", skip);//work.orig_size);
       bufput(ob, data, skip);
     }
