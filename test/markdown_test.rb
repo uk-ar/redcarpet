@@ -37,6 +37,9 @@ class MarkdownTest < Test::Unit::TestCase
     assert_equal "# Hello World.", markdown.render("# Hello World.")
     #assert_equal "Hello\n=====", markdown.render("Hello\n=====")
     assert_equal "Hello\n=====\n", markdown.render("Hello\n=====\n")
+    input = File::open("test/markdown.md").read
+    range = 0..100
+    assert_equal input[range], markdown.render(input[range])
   end
 
   def test_that_simple_one_liner_goes_to_html
