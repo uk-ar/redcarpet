@@ -3,12 +3,14 @@ require 'test_helper'
 
 class Converter < Redcarpet::Render::Base
   def paragraph(text)
-    text
+    #text
   end
   def codespan(text)
     nil
   end
-
+  def block_quote(quote)
+    #"<bq:#{quote}>"
+  end
   # def header(text,level)
   #   nil
   # end
@@ -31,15 +33,18 @@ class MarkdownTest < Test::Unit::TestCase
 
   def test_hello2
     markdown=Redcarpet::Markdown.new(Converter, :copy_block => true)
-    assert_equal "Hello World.", markdown.render("Hello World.")
-    assert_equal "`Hello World.`", markdown.render("`Hello World.`")
-    assert_equal "```\nHello World.\n```", markdown.render("```\nHello World.\n```")
-    assert_equal "# Hello World.", markdown.render("# Hello World.")
-    #assert_equal "Hello\n=====", markdown.render("Hello\n=====")
-    assert_equal "Hello\n=====\n", markdown.render("Hello\n=====\n")
+    # assert_equal "Hello World.", markdown.render("Hello World.")
+    # assert_equal "`Hello World.`", markdown.render("`Hello World.`")
+    # assert_equal "```\nHello World.\n```", markdown.render("```\nHello World.\n```")
+    # assert_equal "# Hello World.", markdown.render("# Hello World.")
+    ##assert_equal "Hello\n=====", markdown.render("Hello\n=====")
+    #assert_equal "Hello\n=====\n", markdown.render("Hello\n=====\n")
     input = File::open("test/markdown.md").read
-    range = 0..100
-    assert_equal input[range], markdown.render(input[range])
+    #range = 0..1000
+    #range = 1000..2000
+    #range = 2000..3000
+    range = 3000..4000
+    assert_equal input[range] + "\n", markdown.render(input[range])
   end
 
   def test_that_simple_one_liner_goes_to_html
