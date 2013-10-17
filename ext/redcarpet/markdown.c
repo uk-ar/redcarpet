@@ -146,15 +146,13 @@ struct sd_markdown {
 	unsigned int ext_flags;
 	size_t max_nesting;
 	int in_link_body;
-  char *start;
-  size_t size;
 };
 
 /***************************
  * HELPER FUNCTIONS *
  ***************************/
+
 void rhello(struct sd_markdown *rndr){
-  fprintf(stderr,"s:%.*s\n",rndr->size, rndr->start);
   printf("hello");
 }
 static inline struct buf *
@@ -772,11 +770,7 @@ char_codespan(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t of
 
 	if (i < nb && end >= size)
 		return 0; /* no matching delimiter */
-  /* fprintf(stderr,"s:%.*s\n",end,data); */
-  /* fprintf(stderr,"end:%d\n",end); */
-  /* rndr->size = end; */
-  /* rndr->start = data; */
-  /* rhello(rndr); */
+
 	/* trimming outside whitespaces */
 	f_begin = nb;
 	while (f_begin < end && data[f_begin] == ' ')
@@ -1574,7 +1568,6 @@ prefix_uli(uint8_t *data, size_t size)
 static void parse_block(struct buf *ob, struct sd_markdown *rndr,
 			uint8_t *data, size_t size);
 
-/*{if(!b){printf("assert: %s \n%s\n%sの%d行目\n", #b, str, __FILE__, __LINE__); abort(); }}*/
 #if 1
 #define hoge(b,str)                               \
   {if (rndr->ext_flags & MKDEXT_COPY_BLOCK) {b;}}
@@ -1615,7 +1608,6 @@ parse_blockquote(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t
 		if (beg < end) { /* copy into the in-place working buffer */
 			/* bufput(work, data + beg, end - beg); */
 			if (!work_data)
-        //work_data = work->data + beg;
 				work_data = data + beg;
 			else if (data + beg != work_data + work_size)
 				memmove(work_data + work_size, data + beg, end - beg);
@@ -1623,7 +1615,7 @@ parse_blockquote(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t
 		}
 		beg = end;
 	}
-  //work_data = work->data;
+
 	parse_block(out, rndr, work_data, work_size);
 	if (rndr->cb.blockquote)
 		rndr->cb.blockquote(ob, out, rndr->opaque);
@@ -1730,7 +1722,7 @@ parse_paragraph(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 				if (rndr->cb.paragraph)
 					rndr->cb.paragraph(ob, tmp, rndr->opaque);
 
-        hoge(bufput(ob, work.data + work.size, end-i), "pp3.5");
+        //hoge(bufput(ob, work.data + work.size, end-i), "pp3.5");
 				rndr_popbuf(rndr, BUFFER_BLOCK);
 				work.data += beg;
 				work.size = i - beg;
@@ -2870,7 +2862,14 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 		if (footnotes_enabled && is_footnote(document, beg, doc_size, &end, &md->footnotes_found))
 			beg = end;
 		else if (is_ref(document, beg, doc_size, &end, md->refs))
-			beg = end;
+{
+/* {if (md->ext_flags & MKDEXT_COPY_BLOCK) */
+/*   //fprintf(stderr,"s:%.*s\n",text->size, text->data); */
+/*   bufput(text, document+beg,end-beg); */
+/* } */
+  struct sd_markdown *rndr = md;
+  hoge(bufput(text, document+beg,end-beg), "ref");
+                       beg = end;}
 		else { /* skipping to the next line */
 			end = beg;
 			while (end < doc_size && document[end] != '\n' && document[end] != '\r')
@@ -2899,12 +2898,11 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 
 	if (text->size) {
 		/* adding a final newline if not already present */
-		if (text->data[text->size - 1] != '\n' &&  text->data[text->size - 1] != '\r')
-			bufputc(text, '\n');
-
-		parse_block(ob, md, text->data, text->size);
-	}
-
+		if (text->data[text->size - 1] != '\n' &&  text->data[text->size - 1] != '\r'){
+      {if (!(md->ext_flags & MKDEXT_COPY_BLOCK))
+          bufputc(text, '\n');}}
+    parse_block(ob, md, text->data, text->size);
+    }
 	/* footnotes */
 	if (footnotes_enabled)
 		parse_footnote_list(ob, md, &md->footnotes_used);
